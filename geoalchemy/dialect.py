@@ -3,6 +3,7 @@ from sqlalchemy.dialects.sqlite.base import SQLiteDialect
 from sqlalchemy.dialects.mysql.base import MySQLDialect
 from sqlalchemy.dialects.oracle.base import OracleDialect
 from sqlalchemy.dialects.mssql.base import MSDialect
+from sqlalchemy.dialects.h2.base import H2Dialect
 from sqlalchemy import func
 from geoalchemy.functions import functions
 from geoalchemy.base import WKTSpatialElement, WKBSpatialElement,\
@@ -179,13 +180,15 @@ class DialectManager(object):
         from geoalchemy.spatialite import SQLiteSpatialDialect
         from geoalchemy.oracle import OracleSpatialDialect
         from geoalchemy.mssql import MSSpatialDialect
+        from geoalchemy.geodb import GeoDBSpatialDialect
             
         DialectManager.__dialects_mapping = {
                 PGDialect: PGSpatialDialect,
                 SQLiteDialect: SQLiteSpatialDialect,
                 MySQLDialect: MySQLSpatialDialect,
                 OracleDialect: OracleSpatialDialect,
-                MSDialect: MSSpatialDialect
+                MSDialect: MSSpatialDialect,
+                H2Dialect: GeoDBSpatialDialect
                 }
 
     @staticmethod

@@ -18,12 +18,13 @@ from sqlalchemy.orm.query import aliased
 
 from geoalchemy.geodb import GeoDBComparator, geodb_functions
 
-engine = create_engine('h2+zxjdbc:///mem:test', echo=True)
+engine = create_engine('h2+zxjdbc:///mem:test', echo=False)
 
 con = engine.connect()
 javaCon = con.connection.__connection__
 from geodb.GeoDB import InitGeoDB
 InitGeoDB(javaCon)
+con.close()
 
 metadata = MetaData(engine)
 session = sessionmaker(bind=engine)()
@@ -75,11 +76,10 @@ class TestGeometry(TestCase):
 
     def setUp(self):
         metadata.drop_all()
-        session.execute("DROP TABLE geometry_columns")
-        session.execute("DROP TABLE _GEODB")
+        session.execute("DROP TABLE IF EXISTS GEOMETRY_COLUMNS")
+        session.execute("DROP TABLE IF EXISTS _GEODB")
         session.commit()
-        session.execute("SELECT InitSpatialMetaData()")
-        session.execute("SELECT db.GeoDB.InitGeoDB()")
+        session.execute("SELECT 'db.GeoDB.InitGeoDB()'")
 
         metadata.create_all()
 

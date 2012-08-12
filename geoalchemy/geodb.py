@@ -1,8 +1,8 @@
 from sqlalchemy import select, func
 from sqlalchemy.sql import and_, text, column, table
 
-from geoalchemy.base import SpatialComparator, PersistentSpatialElement,\
-    WKBSpatialElement
+from geoalchemy.base import SpatialComparator, PersistentSpatialElement, \
+    WKBSpatialElement, WKTSpatialElement
 from geoalchemy.dialect import SpatialDialect 
 from geoalchemy.functions import functions, BaseFunction
 from geoalchemy.mysql import mysql_functions
@@ -68,6 +68,7 @@ class GeoDBSpatialDialect(SpatialDialect):
     """Implementation of SpatialDialect for GeoDB."""
     
     __functions = { 
+                   WKTSpatialElement: 'ST_GeomFromText',
                    functions.within_distance : None,
                    functions.length : 'GLength',
                    # not tested
@@ -98,7 +99,7 @@ class GeoDBSpatialDialect(SpatialDialect):
         #bind.execute(select([func.DiscardGeometryColumn(table.name, column.name)]).execution_options(autocommit=True))
     
     def handle_ddl_after_create(self, bind, table, column):
-        bind.execute("ALTER TABLE ADD %S BLOB" % column.name)
+        bind.execute("ALTER TABLE %s ADD %s BLOB" % (table.name, column.name,) )
         if column.type.spatial_index and GeoDBSpatialDialect.supports_rtree(bind.dialect):
             bind.execute("SELECT CreateSpatialIndex(null, '%s', '%s', '%s')" % (table.name, column.name, column.type.srid))
     
