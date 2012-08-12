@@ -59,7 +59,6 @@ mapper(Spot, spots_table, properties={
             'spot_location': GeometryColumn(spots_table.c.spot_location, 
                                             comparator=GeoDBComparator)}) 
 
-exit()
 
 # enable the DDL extension, which allows CREATE/DROP operations
 # to work correctly.  This is not needed if working with externally
@@ -69,21 +68,19 @@ GeometryDDL(Lake.__table__)
 GeometryDDL(spots_table)
 
 class TestGeometry(TestCase):
-    """Tests for Spatialite
+    """Tests for GeoDB.
     
-    Note that WKT is used for comparisons, because Spatialite may return
-    differing WKB values on different systems.
+    Note that WKT is used for comparisons.
     """
 
     def setUp(self):
         metadata.drop_all()
-        session.execute("DROP VIEW geom_cols_ref_sys")
         session.execute("DROP TABLE geometry_columns")
-        session.execute("DROP TABLE spatial_ref_sys")
+        session.execute("DROP TABLE _GEODB")
         session.commit()
         session.execute("SELECT InitSpatialMetaData()")
-        session.execute("INSERT INTO spatial_ref_sys (srid, auth_name, auth_srid, ref_sys_name, proj4text) VALUES (4326, 'epsg', 4326, 'WGS 84', '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs')")
-        session.execute("INSERT INTO spatial_ref_sys (srid, auth_name, auth_srid, ref_sys_name, proj4text) VALUES (2249, 'epsg', 2249, 'NAD83 / Massachusetts Mainland (ftUS)', '+proj=lcc +lat_1=42.68333333333333 +lat_2=41.71666666666667 +lat_0=41 +lon_0=-71.5 +x_0=200000.0001016002 +y_0=750000 +ellps=GRS80 +datum=NAD83 +to_meter=0.3048006096012192 +no_defs')")
+        session.execute("SELECT db.GeoDB.InitGeoDB()")
+
         metadata.create_all()
 
         # Add objects.  We can use strings...

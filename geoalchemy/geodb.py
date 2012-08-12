@@ -95,18 +95,12 @@ class GeoDBSpatialDialect(SpatialDialect):
             bind.execute(select([func.DisableSpatialIndex(table.name, column.name)]).execution_options(autocommit=True))
             bind.execute("DROP TABLE idx_%s_%s" % (table.name, column.name));
         
-        bind.execute(select([func.DiscardGeometryColumn(table.name, column.name)]).execution_options(autocommit=True))
+        #bind.execute(select([func.DiscardGeometryColumn(table.name, column.name)]).execution_options(autocommit=True))
     
     def handle_ddl_after_create(self, bind, table, column):
-        bind.execute(select([func.AddGeometryColumn(table.name, 
-                                                    column.name, 
-                                                    column.type.srid, 
-                                                    column.type.name, 
-                                                    column.type.dimension,
-                                                    0 if column.nullable else 1)]).execution_options(autocommit=True))
+        bind.execute("ALTER TABLE ADD %S BLOB" % column.name)
         if column.type.spatial_index and GeoDBSpatialDialect.supports_rtree(bind.dialect):
-            bind.execute("SELECT CreateSpatialIndex('%s', '%s')" % (table.name, column.name))
-            bind.execute("VACUUM %s" % table.name)
+            bind.execute("SELECT CreateSpatialIndex(null, '%s', '%s', '%s')" % (table.name, column.name, column.type.srid))
     
     @staticmethod  
     def supports_rtree(dialect):
