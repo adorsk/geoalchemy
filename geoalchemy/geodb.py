@@ -134,12 +134,12 @@ class GeoDBSpatialDialect(SpatialDialect):
         if column.type.spatial_index and GeoDBSpatialDialect.supports_rtree(bind.dialect):
             bind.execute(select([func.DisableSpatialIndex(table.name, column.name)]).execution_options(autocommit=True))
             bind.execute("""
-                         DROP TABLE "idx_%s_%s"
+                         DROP TABLE idx_%s_%s
                          """ % (table.name, column.name))
     
     def handle_ddl_after_create(self, bind, table, column):
         bind.execute("""
-                     ALTER TABLE "%s" ADD "%s" BLOB
+                     ALTER TABLE %s ADD %s BLOB
                      """ % (table.name, column.name,) )
         if column.type.spatial_index and GeoDBSpatialDialect.supports_rtree(bind.dialect):
             bind.execute("""

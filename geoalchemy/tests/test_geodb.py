@@ -18,7 +18,9 @@ from sqlalchemy.orm.query import aliased
 
 from geoalchemy.geodb import GeoDBComparator, geodb_functions
 
-engine = create_engine('h2+zxjdbc:///mem:test', echo=False)
+url = 'h2+zxjdbc:///mem:test'
+#url = 'h2+zxjdbc:////tmp/test'
+engine = create_engine(url, echo=False)
 
 con = engine.connect()
 javaCon = con.connection.__connection__
@@ -107,6 +109,7 @@ class TestGeometry(TestCase):
         session.commit()
 
     def tearDown(self):
+        return
         session.rollback()
         metadata.drop_all()
 
@@ -188,7 +191,7 @@ class TestGeometry(TestCase):
     def test_envelope(self):
         eq_(session.scalar(functions.wkt(self.r.road_geom.envelope)), 
             u'POLYGON((-88.674841 42.936306, -88.439093 42.936306, -88.439093 43.103503, -88.674841 43.103503, -88.674841 42.936306))')
-        env =  WKBSpatialElement(session.scalar(func.AsBinary(self.r.road_geom.envelope)))
+        env =  WKBSpatialElement(session.scalar(func.ST_AsBinary(self.r.road_geom.envelope)))
         eq_(env.geom_type(session), 'Polygon')
         
     def test_x(self):
@@ -494,11 +497,11 @@ class TestGeometry(TestCase):
         # test for bug: http://groups.google.com/group/geoalchemy/browse_thread/thread/6b731dd1673784f9
         from sqlalchemy.orm.query import Query
         query = Query(Road.road_geom).filter(Road.road_geom == '..').__str__()
-        ok_('AsBinary(roads.road_geom)' in query, 'table name is part of the column expression (select clause)')
+        ok_('ST_AsBinary(roads.road_geom)' in query, 'table name is part of the column expression (select clause)')
         ok_('WHERE Equals(roads.road_geom' in query, 'table name is part of the column expression (where clause)')
         
         query_wkb = Select([Road.road_geom]).where(Road.road_geom == 'POINT(0 0)').__str__()
-        ok_('SELECT AsBinary(roads.road_geom)' in query_wkb, 'AsBinary is added')
+        ok_('SELECT ST_AsBinary(roads.road_geom)' in query_wkb, 'AsBinary is added')
         ok_('WHERE Equals(roads.road_geom' in query_wkb, 'AsBinary is not added in where clause')
         
         # test for RAW attribute
