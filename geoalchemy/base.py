@@ -7,6 +7,10 @@ from sqlalchemy.ext.compiler import compiles
 from utils import from_wkt
 from functions import functions, _get_function, BaseFunction
 
+import platform
+if platform.system() == 'Java': 
+    buffer = str
+
 # Base classes for geoalchemy
 
 class SpatialElement(object):

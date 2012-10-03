@@ -8,6 +8,8 @@ from geoalchemy.functions import functions, BaseFunction
 from geoalchemy.mysql import mysql_functions
 from geoalchemy.geometry import GeometryExtensionColumn
 
+from org.python.core.util import StringUtil
+
 
 class GeoDBComparator(SpatialComparator):
     """Comparator class used for Spatialite
@@ -74,7 +76,7 @@ class GeoDBSpatialDialect(SpatialDialect):
         functions.wkb: '',
         functions.dimension : 'ST_Dimension',
         functions.srid : 'ST_SRID',
-        functions.geometry_type : 'ST_GeometryType',
+        functions.geometry_type : 'GeometryType',
         functions.is_valid : 'ST_IsValid',
         functions.is_empty : 'ST_IsEmpty',
         functions.is_simple : 'ST_IsSimple',
@@ -127,8 +129,9 @@ class GeoDBSpatialDialect(SpatialDialect):
     def _get_function_mapping(self):
         return GeoDBSpatialDialect.__functions
     
-    def process_result(self, value, type):
-        return GeoDBPersistentSpatialElement(WKBSpatialElement(value, type.srid))
+    def process_result(self, value, type_):
+        value = StringUtil.fromBytes(value).encode('hex')
+        return GeoDBPersistentSpatialElement(WKBSpatialElement(value, type_.srid))
     
     def handle_ddl_before_drop(self, bind, table, column):
         if column.type.spatial_index and GeoDBSpatialDialect.supports_rtree(bind.dialect):
