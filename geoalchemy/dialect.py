@@ -3,7 +3,7 @@ from sqlalchemy.dialects.sqlite.base import SQLiteDialect
 from sqlalchemy.dialects.mysql.base import MySQLDialect
 from sqlalchemy.dialects.oracle.base import OracleDialect
 from sqlalchemy.dialects.mssql.base import MSDialect
-from sqlalchemy.dialects.h2.base import H2Dialect
+from sqlalchemy_h2.dialect.base import H2Dialect
 from sqlalchemy import func
 from geoalchemy.functions import functions
 from geoalchemy.base import WKTSpatialElement, WKBSpatialElement,\
